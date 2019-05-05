@@ -6,15 +6,20 @@ class AppModel {
 
   AppModel(String jsonStr) {
     JsonDecoder decoder = JsonDecoder();
-    List<dynamic> decoded = decoder.convert(jsonStr);
-    _items = List<Item>();
-    decoded.forEach((val) {
-      List<String> _urls = List<String>();
-      for (String _url in val["urls"]) {
-        _urls.add(_url);
-      }
-      _items.add(Item(code: val["code"], title: val["title"], urls: _urls));
-    });
+    try {
+      List<dynamic> decoded = decoder.convert(jsonStr);
+      _items = List<Item>();
+      decoded.forEach((val) {
+        List<String> _urls = List<String>();
+        for (String _url in val["urls"]) {
+          _urls.add(_url);
+        }
+        _items.add(Item(code: val["code"], title: val["title"], urls: _urls));
+      });
+    } on FormatException catch (e) {
+      print(jsonStr);
+      throw e;
+    }
   }
 
   List<Item> items() {

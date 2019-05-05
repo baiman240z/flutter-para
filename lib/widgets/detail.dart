@@ -56,52 +56,56 @@ class DetailState extends State<Detail> {
               child: _image(currentNo),
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton(
-                color: Colors.cyan,
-                splashColor: Colors.yellow,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
+          Container(
+            color: Colors.blueGrey,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  color: Colors.cyan,
+                  splashColor: Colors.yellow,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onPressed: currentNo < 1 ? null : () {
+                    setState(() {
+                      currentNo -= 1;
+                    });
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    "${currentNo + 1}/${images.length}",
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                onPressed: currentNo < 1 ? null : () {
-                  setState(() {
-                    currentNo -= 1;
-                  });
-                },
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  "${currentNo + 1}/${images.length}",
-                  style: TextStyle(
-                    fontSize: 20.0
+                RaisedButton(
+                  color: Colors.cyan,
+                  splashColor: Colors.yellow,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.white,
+                    ),
                   ),
+                  onPressed: images.length <= currentNo + 1 ? null : () {
+                    setState(() {
+                      currentNo += 1;
+                    });
+                  },
                 ),
-              ),
-              RaisedButton(
-                color: Colors.cyan,
-                splashColor: Colors.yellow,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                  ),
-                ),
-                onPressed: images.length <= currentNo + 1 ? null : () {
-                  setState(() {
-                    currentNo += 1;
-                  });
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

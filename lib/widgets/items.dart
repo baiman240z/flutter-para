@@ -14,6 +14,7 @@ class Items extends StatefulWidget {
 
 class ItemsState extends State<Items> {
   AppModel model;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -24,6 +25,7 @@ class ItemsState extends State<Items> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Items'),
       ),
@@ -45,42 +47,34 @@ class ItemsState extends State<Items> {
     }
 
     setState(() {
-      model = AppModel(jsonStr);
+      try {
+        model = AppModel(jsonStr);
+      } on FormatException {
+        _scaffoldKey.currentState.showSnackBar(SnackBar(content: const Text("JSON error")));
+        exit(0);
+      }
     });
   }
 
   Widget _buildItem(BuildContext context, String code) {
     Item item = model.item(code);
-    return  Container(
-      padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0),
-      child: FlatButton(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0)),
-        color: Colors.indigo,
-        splashColor: Colors.yellow,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.person,
-                color: Colors.teal,
-              ),
-              Padding(padding: EdgeInsets.only(right: 5.0),),
-              Text(
-                item.title,
-                style: TextStyle(color: Colors.white, fontSize: 16.0),
-              ),
-            ],
-          ),
-        ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Detail(item: item,)),
-          );
-        },
+    return ListTile(
+      leading: Icon(Icons.person, color: Colors.blueAccent, size: 30.0,),
+      title: Text(
+        item.title,
+        style: TextStyle(color: Colors.cyan, fontSize: 20.0),
       ),
+      subtitle: Text(
+        '${item.urls.length} pieces',
+        style: TextStyle(color: Colors.grey, fontSize: 16.0),
+      ),
+      dense: true,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Detail(item: item,)),
+        );
+      },
     );
   }
 
@@ -94,6 +88,7 @@ class ItemsState extends State<Items> {
     List<Widget> _listItems = [];
     model.items().forEach((_item) {
       _listItems.add(_buildItem(context, _item.code));
+      _listItems.add(Divider());
     });
     return SafeArea(
       child: ListView(
