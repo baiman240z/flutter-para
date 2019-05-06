@@ -5,21 +5,24 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:sprintf/sprintf.dart';
 import '../classes/util.dart';
+import '../classes/appmodel.dart';
 import 'dart:typed_data';
 
 class Detail extends StatefulWidget {
-  Item item;
+  String code;
 
-  Detail({Key key, @required this.item});
+  Detail({Key key, @required this.code});
 
   @override
   DetailState createState() => DetailState();
 }
 
 class DetailState extends State<Detail> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int progress;
   List<File> images;
   int currentNo;
+  AppModel model;
 
   @override
   void initState() {
@@ -32,9 +35,16 @@ class DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
+    if (model == null) {
+      model = AppModel.of(context);
+    }
+
+    Item item = model.item(widget.code);
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.item.title),
+        title: Text(item.title),
       ),
       body: _build(context),
     );
@@ -140,7 +150,7 @@ class DetailState extends State<Detail> {
 
   void _readImages() async {
     Directory docDir = await getApplicationDocumentsDirectory();
-    Directory imageDir = Directory("${docDir.path}/${widget.item.code}");
+    Directory imageDir = Directory("${docDir.path}/${widget.code}");
     if (!imageDir.existsSync()) {
       await imageDir.create(recursive: true);
       await _downloadImages(imageDir.path);
@@ -165,9 +175,10 @@ class DetailState extends State<Detail> {
   }
 
   Future<void> _downloadImages(String saveDir) async {
-    int total = widget.item.urls.length;
+    Item item = model.item(widget.code);
+    int total = item.urls.length;
     int counter = 0;
-    for (String url in widget.item.urls) {
+    for (String url in item.urls) {
       counter++;
       http.Response response = await http.get(url);
       File file = File(sprintf("%s/%03d.jpg", [saveDir, counter]));
@@ -177,6 +188,7 @@ class DetailState extends State<Detail> {
           progress = counter / total * 100.0 ~/ 1.0;
         });
       } catch (e) {
+        print("set canceled");
         Directory dir = Directory(saveDir);
         var files = await dir.list().toList();
         for (var file in files) {

@@ -1,10 +1,14 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'item.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-class AppModel {
+class AppModel extends Model {
   List<Item> _items;
 
-  AppModel(String jsonStr) {
+  static AppModel of(BuildContext context) => ScopedModel.of<AppModel>(context);
+
+  void loadJson(String jsonStr) {
     JsonDecoder decoder = JsonDecoder();
     try {
       List<dynamic> decoded = decoder.convert(jsonStr);
@@ -34,4 +38,5 @@ class AppModel {
     }
     return null;
   }
+
 }

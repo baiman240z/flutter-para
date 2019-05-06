@@ -6,6 +6,7 @@ import '../classes/appmodel.dart';
 import '../classes/item.dart';
 import 'detail.dart';
 import '../classes/constants.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Items extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class ItemsState extends State<Items> {
   @override
   void initState() {
     super.initState();
+    model = AppModel();
     _loadItems();
   }
 
@@ -48,7 +50,7 @@ class ItemsState extends State<Items> {
 
     setState(() {
       try {
-        model = AppModel(jsonStr);
+        model.loadJson(jsonStr);
       } on FormatException {
         _scaffoldKey.currentState.showSnackBar(SnackBar(content: const Text("JSON error")));
         jsonFile.delete();
@@ -73,14 +75,19 @@ class ItemsState extends State<Items> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Detail(item: item,)),
+          MaterialPageRoute(builder: (context) {
+            return ScopedModel<AppModel>(
+              model: model,
+              child: Detail(code: item.code,),
+            );
+          }),
         );
       },
     );
   }
 
   Widget _build(BuildContext context) {
-    if (model == null) {
+    if (model.items() == null) {
       return Center(
         child: CircularProgressIndicator(),
       );
