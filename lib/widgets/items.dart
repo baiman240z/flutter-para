@@ -51,6 +51,7 @@ class ItemsState extends State<Items> {
         model = AppModel(jsonStr);
       } on FormatException {
         _scaffoldKey.currentState.showSnackBar(SnackBar(content: const Text("JSON error")));
+        jsonFile.delete();
         exit(0);
       }
     });
