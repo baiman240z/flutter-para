@@ -78,7 +78,7 @@ class ItemsState extends State<Items> {
           MaterialPageRoute(builder: (context) {
             return ScopedModel<AppModel>(
               model: model,
-              child: Detail(code: item.code,),
+              child: Detail(code: item.code, parentKey: _scaffoldKey,),
             );
           }),
         );

@@ -9,9 +9,10 @@ import '../classes/appmodel.dart';
 import 'dart:typed_data';
 
 class Detail extends StatefulWidget {
+  final GlobalKey<ScaffoldState> parentKey;
   String code;
 
-  Detail({Key key, @required this.code});
+  Detail({Key key, @required this.code, @required this.parentKey});
 
   @override
   DetailState createState() => DetailState();
@@ -188,7 +189,9 @@ class DetailState extends State<Detail> {
           progress = counter / total * 100.0 ~/ 1.0;
         });
       } catch (e) {
-        print("set canceled");
+        widget.parentKey.currentState.showSnackBar(
+          SnackBar(content: const Text("Canceled loading images."))
+        );
         Directory dir = Directory(saveDir);
         var files = await dir.list().toList();
         for (var file in files) {
