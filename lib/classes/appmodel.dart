@@ -5,6 +5,7 @@ import 'package:scoped_model/scoped_model.dart';
 
 class AppModel extends Model {
   List<Item> _items;
+  Map<String, int> _lastPages = {};
 
   static AppModel of(BuildContext context) => ScopedModel.of<AppModel>(context);
 
@@ -39,4 +40,12 @@ class AppModel extends Model {
     return null;
   }
 
+  void savePage(String code, int no) {
+    _lastPages[code] = no;
+    notifyListeners();
+  }
+
+  int getLastPage(String code) {
+    return _lastPages.containsKey(code) ? _lastPages[code] : 0;
+  }
 }

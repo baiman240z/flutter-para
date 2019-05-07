@@ -20,12 +20,15 @@ class ItemsState extends State<Items> {
   @override
   void initState() {
     super.initState();
-    model = AppModel();
-    _loadItems();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (model == null) {
+      model = AppModel.of(context);
+      _loadItems();
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -76,10 +79,7 @@ class ItemsState extends State<Items> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return ScopedModel<AppModel>(
-              model: model,
-              child: Detail(code: item.code, parentKey: _scaffoldKey,),
-            );
+            return Detail(code: item.code, parentKey: _scaffoldKey,);
           }),
         );
       },

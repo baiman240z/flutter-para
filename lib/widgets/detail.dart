@@ -30,7 +30,7 @@ class DetailState extends State<Detail> {
     super.initState();
     progress = 0;
     images = null;
-    currentNo = 0;
+    currentNo = null;
     _readImages();
   }
 
@@ -38,6 +38,12 @@ class DetailState extends State<Detail> {
   Widget build(BuildContext context) {
     if (model == null) {
       model = AppModel.of(context);
+    }
+
+    if (currentNo == null) {
+      setState(() {
+        currentNo = model.getLastPage(widget.code);
+      });
     }
 
     Item item = model.item(widget.code);
@@ -125,6 +131,7 @@ class DetailState extends State<Detail> {
 
   Image _image(int no) {
     Uint8List decrypted = Util.decrypt(images[no].readAsBytesSync());
+    model.savePage(widget.code, no);
     return Image.memory(decrypted);
   }
 
