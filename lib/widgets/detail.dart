@@ -10,9 +10,9 @@ import 'dart:typed_data';
 
 class Detail extends StatefulWidget {
   final GlobalKey<ScaffoldState> parentKey;
-  String code;
+  Item item;
 
-  Detail({Key key, @required this.code, @required this.parentKey});
+  Detail({Key key, @required this.item, @required this.parentKey});
 
   @override
   DetailState createState() => DetailState();
@@ -23,7 +23,6 @@ class DetailState extends State<Detail> {
   int progress;
   List<File> images;
   int currentNo;
-  AppModel model;
 
   @override
   void initState() {
@@ -36,22 +35,18 @@ class DetailState extends State<Detail> {
 
   @override
   Widget build(BuildContext context) {
-    if (model == null) {
-      model = AppModel.of(context);
-    }
+    final model = AppModel.of(context);
 
     if (currentNo == null) {
       setState(() {
-        currentNo = model.getLastPage(widget.code);
+        currentNo = model.getLastPage(widget.item.code);
       });
     }
-
-    Item item = model.item(widget.code);
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(item.title),
+        title: Text(widget.item.title),
       ),
       body: _build(context),
     );
@@ -70,7 +65,7 @@ class DetailState extends State<Detail> {
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-              child: _image(currentNo),
+              child: _image(context, currentNo),
             ),
           ),
           Container(
@@ -129,9 +124,9 @@ class DetailState extends State<Detail> {
     );
   }
 
-  Image _image(int no) {
+  Image _image(BuildContext context, int no) {
     Uint8List decrypted = Util.decrypt(images[no].readAsBytesSync());
-    model.savePage(widget.code, no);
+    AppModel.of(context).savePage(widget.item.code, no);
     return Image.memory(decrypted);
   }
 
@@ -158,7 +153,7 @@ class DetailState extends State<Detail> {
 
   void _readImages() async {
     Directory docDir = await getApplicationDocumentsDirectory();
-    Directory imageDir = Directory("${docDir.path}/${widget.code}");
+    Directory imageDir = Directory("${docDir.path}/${widget.item.code}");
     if (!imageDir.existsSync()) {
       await imageDir.create(recursive: true);
       await _downloadImages(imageDir.path);
@@ -183,10 +178,9 @@ class DetailState extends State<Detail> {
   }
 
   Future<void> _downloadImages(String saveDir) async {
-    Item item = model.item(widget.code);
-    int total = item.urls.length;
+    int total = widget.item.urls.length;
     int counter = 0;
-    for (String url in item.urls) {
+    for (String url in widget.item.urls) {
       counter++;
       http.Response response = await http.get(url);
       File file = File(sprintf("%s/%03d.jpg", [saveDir, counter]));
@@ -197,7 +191,7 @@ class DetailState extends State<Detail> {
         });
       } catch (e) {
         widget.parentKey.currentState.showSnackBar(
-          SnackBar(content: const Text("Canceled loading images."))
+          SnackBar(content: Text("Canceled loading ${widget.item.title} images."))
         );
         Directory dir = Directory(saveDir);
         var files = await dir.list().toList();

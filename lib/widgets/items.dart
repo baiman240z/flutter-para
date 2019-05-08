@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import '../classes/appmodel.dart';
 import '../classes/item.dart';
 import 'detail.dart';
-import '../classes/constants.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class Items extends StatefulWidget {
   @override
@@ -14,7 +9,6 @@ class Items extends StatefulWidget {
 }
 
 class ItemsState extends State<Items> {
-  AppModel model;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -24,11 +18,6 @@ class ItemsState extends State<Items> {
 
   @override
   Widget build(BuildContext context) {
-    if (model == null) {
-      model = AppModel.of(context);
-      _loadItems();
-    }
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -38,31 +27,8 @@ class ItemsState extends State<Items> {
     );
   }
 
-  void _loadItems() async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    File jsonFile = File("${dir.path}/items.json");
-    String jsonStr;
-    if (jsonFile.existsSync()) {
-      jsonStr = await jsonFile.readAsString();
-    } else {
-      http.Response response =
-      await http.get('${Constants.API_URL}list');
-      jsonStr = response.body;
-      jsonFile.writeAsString(response.body);
-    }
-
-    setState(() {
-      try {
-        model.loadJson(jsonStr);
-      } on FormatException {
-        _scaffoldKey.currentState.showSnackBar(SnackBar(content: const Text("JSON error")));
-        jsonFile.delete();
-        exit(0);
-      }
-    });
-  }
-
   Widget _buildItem(BuildContext context, String code) {
+    final model = AppModel.of(context, rebuildOnChange: true);
     Item item = model.item(code);
     return ListTile(
       leading: Icon(Icons.person, color: Colors.blueAccent, size: 30.0,),
@@ -79,7 +45,7 @@ class ItemsState extends State<Items> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return Detail(code: item.code, parentKey: _scaffoldKey,);
+            return Detail(item: item, parentKey: _scaffoldKey,);
           }),
         );
       },
@@ -87,6 +53,7 @@ class ItemsState extends State<Items> {
   }
 
   Widget _build(BuildContext context) {
+    final model = AppModel.of(context, rebuildOnChange: true);
     if (model.items() == null) {
       return Center(
         child: CircularProgressIndicator(),

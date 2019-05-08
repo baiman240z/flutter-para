@@ -7,7 +7,9 @@ class AppModel extends Model {
   List<Item> _items;
   Map<String, int> _lastPages = {};
 
-  static AppModel of(BuildContext context) => ScopedModel.of<AppModel>(context);
+  static AppModel of(BuildContext context, {
+    bool rebuildOnChange = false,
+  }) => ScopedModel.of<AppModel>(context, rebuildOnChange: rebuildOnChange);
 
   void loadJson(String jsonStr) {
     JsonDecoder decoder = JsonDecoder();
@@ -21,6 +23,7 @@ class AppModel extends Model {
         }
         _items.add(Item(code: val["code"], title: val["title"], urls: _urls));
       });
+      notifyListeners();
     } on FormatException catch (e) {
       print(jsonStr);
       throw e;
@@ -42,7 +45,6 @@ class AppModel extends Model {
 
   void savePage(String code, int no) {
     _lastPages[code] = no;
-    notifyListeners();
   }
 
   int getLastPage(String code) {
