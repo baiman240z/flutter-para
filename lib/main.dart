@@ -14,6 +14,8 @@ void main() async {
     DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight
   ]);
 
+  WidgetsFlutterBinding.ensureInitialized();
+
   var model = AppModel();
   _loadItems(model);
   runApp(MyApp(model: model));
